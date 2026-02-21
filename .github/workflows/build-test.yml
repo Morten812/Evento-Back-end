@@ -30,7 +30,7 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build Evento.sln --configuration Release --no-restore
+        run: dotnet build Evento-Back-end.sln --configuration Release --no-restore
 
       - name: Test
         run: dotnet test --no-build
