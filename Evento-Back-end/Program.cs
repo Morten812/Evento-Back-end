@@ -1,7 +1,12 @@
 using Evento_Back_end.Data;
+using Evento_Back_end.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using System;
 
 namespace Evento_Back_end
 {
@@ -12,6 +17,7 @@ namespace Evento_Back_end
             var builder = WebApplication.CreateBuilder(args);
 
             var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection") ?? throw new InvalidOperationException("Connection string 'SqlServerConnection' not found.");
+            
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
@@ -19,45 +25,45 @@ namespace Evento_Back_end
 
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
-
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
+            // Optional: Add development exception pages if migrations fail
+            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            // Seed Identity data
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseMigrationsEndPoint();
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<AppDbContext>();
 
-                using var scope = app.Services.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();
+                // Apply pending migrations
+                await dbContext.Database.MigrateAsync();
 
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                if (!await roleManager.RoleExistsAsync(Roles.Admin))
+                // 1. Seed roles
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                foreach (var role in new[]
                 {
-                    await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
+                    Rolenames.Admin,
+                    Rolenames.Customer,
+                    Rolenames.Manager,
+                    Rolenames.Member
+                })
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
                 }
 
-                if (!await roleManager.RoleExistsAsync(Roles.Customer))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
-                }
-
-                if (!await roleManager.RoleExistsAsync(Roles.Member))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(Roles.Member));
-                }
-
-                if (!await roleManager.RoleExistsAsync(Roles.Manager))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(Roles.Manager));
-                }
+                // 2. Seed admin user
+                await IdentitySeeder.SeedAdminAsync(services);
             }
 
+            // Configure the HTTP request pipeline.
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Evento_Back_end.Data
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<ApplicationUser>(options)
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
     {
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -13,10 +13,9 @@ namespace Evento_Back_end.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(e => e.EnableNotifications).HasDefaultValue(true);
-                entity.Property(e => e.Initials).HasMaxLength(5);
             });
 
-            builder.HasDefaultSchema("identity");
+            //builder.HasDefaultSchema("identity");
         }
     }
 }
