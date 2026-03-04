@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Evento_Back_end.DomainModels;
+using Evento_Back_end.DTOs;
 
 namespace Evento_Front_end.Controllers
 {
@@ -10,43 +11,39 @@ namespace Evento_Front_end.Controllers
     {
         private readonly SignInManager<Users> signInManager;
         private readonly UserManager<Users> userManager;
+        private readonly IConfiguration _configuration;
 
-        public BackendAccountController(SignInManager<Users> signInManager, UserManager<Users> userManager)
+        public BackendAccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
+            this._configuration = configuration;
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDTO model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (ModelState.IsValid)
-            {
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Email or password is incorrect.");
-                    return View(model);
-                }
-            }
-            return View(model);
+            if (user == null)
+                return Unauthorized("Invalid credentials");
+
+            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+            if (!result.Succeeded)
+                return Unauthorized("Invalid credentials");
+
+            // Generate JWT here
+            var token = GenerateJwtToken(user);
+
+            return Ok(new { token });
         }
 
+        [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            // Stateless if JWT
+            return Ok();
         }
     }
 }
