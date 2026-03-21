@@ -2,11 +2,14 @@ using Evento_Back_end.Data;
 using Evento_Back_end.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using System;
+using Evento_Back_end.DomainModels;
 
 namespace Evento_Back_end
 {
@@ -31,6 +34,10 @@ namespace Evento_Back_end
 
             // Optional: Add development exception pages if migrations fail
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+            builder.Services.AddEndpointsApiExplorer();
+
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -64,6 +71,11 @@ namespace Evento_Back_end
             }
 
             // Configure the HTTP request pipeline.
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
