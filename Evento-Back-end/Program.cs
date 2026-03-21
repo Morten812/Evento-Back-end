@@ -39,7 +39,18 @@ namespace Evento_Back_end
 
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy => policy
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
             var app = builder.Build();
+
+            app.UseCors("AllowFrontend");
 
             // Seed Identity data
             using (var scope = app.Services.CreateScope())
