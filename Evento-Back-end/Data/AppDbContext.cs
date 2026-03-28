@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Evento_Back_end.DomainModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,5 +18,7 @@ namespace Evento_Back_end.Data
 
             //builder.HasDefaultSchema("identity");
         }
+
+        public DbSet<Company> Companies { get; set; }
     }
 }
