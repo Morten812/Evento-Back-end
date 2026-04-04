@@ -24,7 +24,8 @@ namespace Evento_Back_end.Controllers
                 .Select(c => new CompanyDTO
                 {
                     CompanyId = c.CompanyId,
-                    Name = c.Name
+                    Name = c.Name,
+                    Description = c.Description
                 })
                 .ToList();
 
