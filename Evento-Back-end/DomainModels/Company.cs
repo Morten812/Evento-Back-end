@@ -4,7 +4,7 @@ namespace Evento_Back_end.DomainModels
     public class Company
     {
 
-        public int CompanyId { get; set; }
+        public int CompanyID { get; set; }
         public string Name { get; set; }
         public string? DisplayName { get; set; }
         public string? Description { get; set; }

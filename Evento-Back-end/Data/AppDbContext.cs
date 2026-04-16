@@ -20,5 +20,6 @@ namespace Evento_Back_end.Data
         }
 
         public DbSet<Company> Companies { get; set; }
+        public DbSet<Services> Services { get; set; }
     }
 }

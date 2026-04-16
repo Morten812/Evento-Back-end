@@ -23,12 +23,26 @@ namespace Evento_Back_end.Controllers
             return _context.Companies
                 .Select(c => new CompanyDTO
                 {
-                    CompanyId = c.CompanyId,
+                    CompanyID = c.CompanyID,
                     Name = c.Name,
-                    Description = c.Description
+                    Description = c.Description,
+                    Email = c.Email
                 })
                 .ToList();
 
+        }
+
+        [HttpGet("{companyId}/services")]
+        public IEnumerable<ServiceDTO> GetServicesForCompany(int companyId)
+        {
+            return _context.Services
+                .Where(s => s.CompanyID == companyId)
+                .Select(s => new ServiceDTO
+                {
+                    ServiceID = s.ServiceID,
+                    Name = s.Name
+                })
+                .ToList();
         }
     }
 }
