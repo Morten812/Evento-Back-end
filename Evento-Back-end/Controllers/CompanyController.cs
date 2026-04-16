@@ -40,7 +40,9 @@ namespace Evento_Back_end.Controllers
                 .Select(s => new ServiceDTO
                 {
                     ServiceID = s.ServiceID,
-                    Name = s.Name
+                    Name = s.Name,
+                    Description = s.Description,
+                    Price = s.Price
                 })
                 .ToList();
         }
