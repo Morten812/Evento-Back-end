@@ -1,0 +1,17 @@
+﻿namespace Evento_Back_end.DomainModels
+{
+    public class Request
+    {
+        public int RequestID { get; set; }
+        public int ServiceID { get; set; }
+        public int CompanyID { get; set; }
+        public int CustomerID { get; set; }
+        public string? Description { get; set; }
+        public DateTime RequestedStart { get; set; }
+        public DateTime? RequestedEnd { get; set; }
+        public string Status { get; set; }
+        public DateTime? RespondedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+}

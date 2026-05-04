@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using System;
 using Evento_Back_end.DomainModels;
+using Evento_Back_end.Contracts;
+using Evento_Back_end.Repositories;
 
 namespace Evento_Back_end
 {
@@ -47,6 +49,8 @@ namespace Evento_Back_end
                     .AllowAnyHeader()
                     .AllowAnyMethod());
             });
+
+            builder.Services.AddScoped<IRequestAsyncRepository, RequestRepository>();
 
             var app = builder.Build();
 

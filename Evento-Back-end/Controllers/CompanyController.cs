@@ -18,15 +18,34 @@ namespace Evento_Back_end.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CompanyDTO> GetCompanies()
+        public IEnumerable<CompanyDTO> GetCompanies(string? searchTerm, List<string>? categories)
         {
-            return _context.Companies
+            var query = _context.Companies.AsQueryable();
+
+            if(!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(c => c.Name.Contains(searchTerm));
+            }
+
+            if (categories != null && categories.Any())
+            {
+                query = query.Where(c =>
+                _context.Services.Any(s =>
+                    s.CompanyID == c.CompanyID &&
+                    categories.Contains(s.Type)
+                    )
+                );
+            }
+
+            return query
                 .Select(c => new CompanyDTO
                 {
                     CompanyID = c.CompanyID,
                     Name = c.Name,
                     Description = c.Description,
-                    Email = c.Email
+                    Email = c.Email,
+                    LogoUrl = c.LogoUrl,
+                    Municipality = c.Municipality
                 })
                 .ToList();
 
@@ -45,6 +64,26 @@ namespace Evento_Back_end.Controllers
                     Price = s.Price
                 })
                 .ToList();
+        }
+
+        [HttpGet("{companyId}")]
+        public ActionResult<CompanyDTO> GetCompany(int companyId)
+        {
+            var company = _context.Companies
+                .Where(c => c.CompanyID == companyId)
+                .Select(c => new CompanyDTO
+                {
+                    CompanyID = c.CompanyID,
+                    Name = c.Name,
+                    Description = c.Description,
+                    LogoUrl = c.LogoUrl
+                })
+                .FirstOrDefault(c => c.CompanyID == companyId);
+
+            if (company == null)
+                return NotFound();
+
+            return Ok(company);
         }
     }
 }

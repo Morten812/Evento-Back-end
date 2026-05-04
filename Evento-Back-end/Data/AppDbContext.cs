@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Evento_Back_end.Data
 {
@@ -14,12 +15,20 @@ namespace Evento_Back_end.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(e => e.EnableNotifications).HasDefaultValue(true);
+
             });
 
+            builder.Entity<Services>()
+                .Property(s => s.Price)
+                .HasPrecision(18, 2);
+
             //builder.HasDefaultSchema("identity");
+
+
         }
 
         public DbSet<Company> Companies { get; set; }
         public DbSet<Services> Services { get; set; }
+        public DbSet<Request> Requests { get; set; }
     }
 }
