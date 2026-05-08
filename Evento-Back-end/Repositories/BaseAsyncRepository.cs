@@ -43,7 +43,7 @@ namespace Evento_Back_end.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await context.Set<T>().FindAsync(id);
         }

@@ -1,4 +1,7 @@
-﻿namespace Evento_Back_end.DTOs
+﻿using Evento_Back_end.DomainModels;
+using static Evento_Back_end.DomainModels.Request;
+
+namespace Evento_Back_end.DTOs
 {
     public class RequestDTO
     {
@@ -7,6 +10,7 @@
         public int CompanyID { get; set; }
         public int CustomerID { get; set; }
         public string Description { get; set; }
+        public RequestStatus Status { get; set; }
 
     }
 }

@@ -24,6 +24,9 @@ namespace Evento_Back_end.Data
 
             //builder.HasDefaultSchema("identity");
 
+            builder.Entity<Request>()
+              .Property(s => s.Status)
+              .HasConversion<string>();
 
         }
 

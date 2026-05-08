@@ -9,9 +9,16 @@
         public string? Description { get; set; }
         public DateTime RequestedStart { get; set; }
         public DateTime? RequestedEnd { get; set; }
-        public string Status { get; set; }
+        public RequestStatus Status { get; set; }
         public DateTime? RespondedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    public enum RequestStatus
+    {
+        Pending,
+        Accepted,
+        Declined
     }
 }
