@@ -106,7 +106,7 @@ namespace Evento_Back_end.Controllers
             request.Status = dto.Status;
             request.RespondedAt = DateTime.UtcNow;
 
-            await _requestRepository.UpdateAsync(request);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

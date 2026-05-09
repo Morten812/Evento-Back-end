@@ -33,8 +33,7 @@ namespace Evento_Back_end.Repositories
 
         public async Task UpdateAsync(T entity)
         {
-            context.Set<T>().Update(entity);
-            await context.SaveChangesAsync();
+            context.Entry(entity).State = EntityState.Modified;
         }
 
         public async Task DeleteAsync(T entity)
