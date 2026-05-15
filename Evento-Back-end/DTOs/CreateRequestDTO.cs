@@ -6,6 +6,7 @@ namespace Evento_Back_end.DTOs
     public class CreateRequestDTO
     {
         public int ServiceID { get; set; }
+        public int CustomerID { get; set; }
         public string? Description { get; set; }
     }
 }

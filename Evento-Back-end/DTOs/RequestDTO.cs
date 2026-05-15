@@ -11,6 +11,8 @@ namespace Evento_Back_end.DTOs
         public int CustomerID { get; set; }
         public string Description { get; set; }
         public RequestStatus Status { get; set; }
+        public string ServiceName { get; set; }
+        public string CustomerName { get; set; }
 
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Evento_Back_end.DomainModels
 {
-    public class Services
+    public class Service
     {
         [Key]
         public int ServiceID { get; set; }
@@ -20,5 +20,6 @@ namespace Evento_Back_end.DomainModels
         public DateTime UpdatedAt { get; set; }
         public int? DurationMinutes { get; set; }
         public string? ImageUrl { get; set; }
+        public ICollection<Request> Requests { get; set; }
     }
 }

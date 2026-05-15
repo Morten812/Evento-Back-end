@@ -13,7 +13,7 @@ namespace Evento_Back_end.DomainModels
         public string? Web { get; set; }
         public bool IsActive { get; set; }
         public bool IsPublic { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }

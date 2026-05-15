@@ -1,4 +1,5 @@
-﻿namespace Evento_Back_end.DomainModels
+﻿
+namespace Evento_Back_end.DomainModels
 {
     public class Request
     {
@@ -13,12 +14,15 @@
         public DateTime? RespondedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public Service Service { get; set; }
+        public Customer Customer { get; set; }
     }
 
     public enum RequestStatus
     {
         Pending,
-        Accepted,
-        Declined
+        Approved,
+        Cancelled,
+        Rejected
     }
 }

@@ -29,7 +29,9 @@ namespace Evento_Back_end.Controllers
                     RequestID = r.RequestID,
                     ServiceID = r.ServiceID,
                     Description = r.Description,
-                    Status = r.Status
+                    Status = r.Status,
+                    ServiceName = r.Service.Name,
+                    CustomerName = r.Customer.FirstName + " " + r.Customer.LastName
                 })
                 .ToListAsync();
 
@@ -65,7 +67,7 @@ namespace Evento_Back_end.Controllers
             {
                 ServiceID = dto.ServiceID,
                 CompanyID = service.CompanyID, // derives automatically from the service class
-                CustomerID = 1,
+                CustomerID = dto.CustomerID,
 
                 Description = dto.Description,
 
@@ -95,7 +97,7 @@ namespace Evento_Back_end.Controllers
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] RequestDTO dto)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateRequestStatusDTO dto)
         {
             var request = await _context.Requests
                 .FirstOrDefaultAsync(r => r.RequestID == id);
@@ -106,9 +108,32 @@ namespace Evento_Back_end.Controllers
             request.Status = dto.Status;
             request.RespondedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            Console.WriteLine($"Saving status: {request.Status}");
 
-            return NoContent();
+            var result = await _context.SaveChangesAsync();
+
+            Console.WriteLine($"Rows affected: {result}");
+
+            return Ok(request.Status);
+        }
+
+        [HttpGet("jobs")]
+        public async Task<ActionResult<List<RequestDTO>>> GetApprovedRequests()
+        {
+            var jobs = await _context.Requests
+                .Where(r => r.Status == RequestStatus.Approved)
+                .Select(r => new RequestDTO
+                {
+                    RequestID = r.RequestID,
+                    ServiceID = r.ServiceID,
+                    Description = r.Description,
+                    Status = r.Status,
+                    ServiceName = r.Service.Name,
+                    CustomerName = r.Customer.FirstName + " " + r.Customer.LastName
+                })
+                .ToListAsync();
+
+            return Ok(jobs);
         }
     }
 }

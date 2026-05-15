@@ -18,7 +18,7 @@ namespace Evento_Back_end.Data
 
             });
 
-            builder.Entity<Services>()
+            builder.Entity<Service>()
                 .Property(s => s.Price)
                 .HasPrecision(18, 2);
 
@@ -31,7 +31,8 @@ namespace Evento_Back_end.Data
         }
 
         public DbSet<Company> Companies { get; set; }
-        public DbSet<Services> Services { get; set; }
+        public DbSet<Service> Services { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Customer> Customers { get; set; }
     }
 }
