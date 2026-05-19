@@ -54,6 +54,28 @@ namespace Evento_Back_end.Controllers
             return Ok(requests);
         }
 
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<List<RequestDTO>>> GetRequestsByCompany(int companyId)
+        {
+            var requests = await _context.Requests
+                .Where(r => r.CompanyID == companyId && r.Status == RequestStatus.Pending)
+                .Select(r => new RequestDTO
+                {
+                    RequestID = r.RequestID,
+                    ServiceID = r.ServiceID,
+                    Description = r.Description,
+                    Status = r.Status,
+                    ServiceName = r.Service.Name,
+                    CustomerName =
+                        r.Customer.FirstName + " " +
+                        r.Customer.LastName,
+
+                    CreatedAt = r.CreatedAt
+                })
+                .ToListAsync();
+            return Ok(requests);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] CreateRequestDTO dto)
         {
@@ -108,6 +130,11 @@ namespace Evento_Back_end.Controllers
             request.Status = dto.Status;
             request.RespondedAt = DateTime.UtcNow;
 
+            if (dto.Status == RequestStatus.Cancelled)
+            {
+                request.RequestedEnd = DateTime.UtcNow;
+            }
+
             Console.WriteLine($"Saving status: {request.Status}");
 
             var result = await _context.SaveChangesAsync();
@@ -129,7 +156,8 @@ namespace Evento_Back_end.Controllers
                     Description = r.Description,
                     Status = r.Status,
                     ServiceName = r.Service.Name,
-                    CustomerName = r.Customer.FirstName + " " + r.Customer.LastName
+                    CustomerName = r.Customer.FirstName + " " + r.Customer.LastName,
+                    RespondedAt = r.RespondedAt
                 })
                 .ToListAsync();
 
