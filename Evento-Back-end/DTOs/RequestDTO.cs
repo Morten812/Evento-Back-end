@@ -15,6 +15,7 @@ namespace Evento_Back_end.DTOs
         public string CustomerName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? RespondedAt { get; set; }
+        public DateTime? RequestedEnd { get; set; }
 
     }
 }

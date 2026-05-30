@@ -54,7 +54,7 @@ namespace Evento_Back_end.Controllers
             return Ok(requests);
         }
 
-        [HttpGet("company/{companyId}")]
+        [HttpGet("company/{companyId}/pending")]
         public async Task<ActionResult<List<RequestDTO>>> GetRequestsByCompany(int companyId)
         {
             var requests = await _context.Requests
@@ -75,6 +75,31 @@ namespace Evento_Back_end.Controllers
                 .ToListAsync();
             return Ok(requests);
         }
+
+        
+        [HttpGet("company/{companyId}/history")]
+        public async Task<ActionResult<List<RequestDTO>>> ShowRequestHistoryByCompany(int companyId)
+        {
+            var requests = await _context.Requests
+                .Where(r => r.CompanyID == companyId)
+                .Select(r => new RequestDTO
+                {
+                    RequestID = r.RequestID,
+                    ServiceID = r.ServiceID,
+                    Description = r.Description,
+                    Status = r.Status,
+                    ServiceName = r.Service.Name,
+                    CustomerName =
+                        r.Customer.FirstName + " " +
+                        r.Customer.LastName,
+
+                    CreatedAt = r.CreatedAt,
+                    RequestedEnd = r.RequestedEnd
+                })
+                .ToListAsync();
+            return Ok(requests);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] CreateRequestDTO dto)

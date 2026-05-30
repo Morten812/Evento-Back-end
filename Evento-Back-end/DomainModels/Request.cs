@@ -23,6 +23,7 @@ namespace Evento_Back_end.DomainModels
         Pending,
         Approved,
         Cancelled,
-        Rejected
+        Rejected,
+        Completed
     }
 }
