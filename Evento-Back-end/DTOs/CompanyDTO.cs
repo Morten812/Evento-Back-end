@@ -8,5 +8,6 @@
         public string? Email { get; set; }
         public string? LogoUrl { get; set; }
         public string? Municipality { get; set; }
+        public string? Region { get; set; }
     }
 }

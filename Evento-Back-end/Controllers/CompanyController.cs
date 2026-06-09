@@ -45,7 +45,8 @@ namespace Evento_Back_end.Controllers
                     Description = c.Description,
                     Email = c.Email,
                     LogoUrl = c.LogoUrl,
-                    Municipality = c.Municipality
+                    Municipality = c.Municipality,
+                    Region = c.Region
                 })
                 .ToList();
 

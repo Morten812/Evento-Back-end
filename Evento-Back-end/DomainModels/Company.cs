@@ -20,6 +20,6 @@ namespace Evento_Back_end.DomainModels
         public string? Address { get; set; }
         public string? WebUrl { get; set; }
         public string? Municipality { get; set; }
-
+        public string? Region { get; set; }
     }
 }

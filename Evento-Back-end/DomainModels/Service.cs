@@ -22,4 +22,11 @@ namespace Evento_Back_end.DomainModels
         public string? ImageUrl { get; set; }
         public ICollection<Request> Requests { get; set; }
     }
+
+    public enum ServiceCategory
+    {
+        Cleaning = 1,
+        Security = 2,
+        Transportation = 3
+    }
 }

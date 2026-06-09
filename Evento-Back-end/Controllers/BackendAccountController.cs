@@ -7,18 +7,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Evento_Back_end.Data;
 
-namespace Evento_Front_end.Controllers
+namespace Evento_Back_end.Controllers
 {
     [ApiController]
     [Route("api/account")]
     public class BackendAccountController : ControllerBase
     {
-        private readonly SignInManager<Users> signInManager;
-        private readonly UserManager<Users> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration _configuration;
 
-        public BackendAccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, IConfiguration configuration)
+        public BackendAccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
@@ -41,6 +42,8 @@ namespace Evento_Front_end.Controllers
             var roles = await userManager.GetRolesAsync(user);
 
             // Generate JWT here
+            Console.WriteLine(_configuration["Jwt:SecretKey"]);
+            Console.WriteLine(_configuration["Jwt:SecretKey"]?.Length);
             var signingKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
 
@@ -62,7 +65,11 @@ namespace Evento_Front_end.Controllers
                 Audience = _configuration["Jwt:Audience"]
             };
 
-            return Ok(); // JWT probably isn't finished yet
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+
+            return Ok(new {token = jwt}); // JWT probably isn't finished yet
         }
 
         [HttpGet("logout")]
