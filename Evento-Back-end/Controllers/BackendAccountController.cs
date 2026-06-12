@@ -42,8 +42,8 @@ namespace Evento_Back_end.Controllers
             var roles = await userManager.GetRolesAsync(user);
 
             // Generate JWT here
-            Console.WriteLine(_configuration["Jwt:SecretKey"]);
-            Console.WriteLine(_configuration["Jwt:SecretKey"]?.Length);
+            // Console.WriteLine(_configuration["Jwt:SecretKey"]);
+            // Console.WriteLine(_configuration["Jwt:SecretKey"]?.Length);
             var signingKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
 
