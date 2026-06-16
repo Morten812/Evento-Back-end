@@ -53,7 +53,7 @@ namespace Evento_Back_end.Controllers
             [
                 new(JwtRegisteredClaimNames.Sub, user.Id),
                 new(JwtRegisteredClaimNames.Email, user.Email!),
-                ..roles.Select(r => new Claim(ClaimTypes.Role, r))
+                ..roles.Select(r => new Claim("role", r))
             ];
 
             var tokenDescriptor = new SecurityTokenDescriptor

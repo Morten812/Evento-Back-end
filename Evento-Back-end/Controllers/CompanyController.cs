@@ -18,25 +18,31 @@ namespace Evento_Back_end.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CompanyDTO> GetCompanies(string? searchTerm, List<string>? categories)
+        public IEnumerable<CompanyDTO> GetCompanies([FromQuery] CompanyFilterDTO filter)
         {
             var query = _context.Companies.AsQueryable();
 
-            if(!string.IsNullOrWhiteSpace(searchTerm))
+            if(!string.IsNullOrWhiteSpace(filter.SearchTerm))
             {
-                query = query.Where(c => c.Name.Contains(searchTerm));
+                query = query.Where(c => c.Name.Contains(filter.SearchTerm));
             }
 
-            if (categories != null && categories.Any())
+            if (filter.Services != null && filter.Services.Any())
             {
                 query = query.Where(c =>
                 _context.Services.Any(s =>
                     s.CompanyID == c.CompanyID &&
-                    categories.Contains(s.Type)
+                    filter.Services.Contains(s.Type)
                     )
                 );
             }
-
+            
+            if (filter.Municipalities != null && filter.Municipalities.Any())
+            {
+                query = query.Where(c =>
+                    filter.Municipalities.Contains(c.Municipality));
+            }
+            
             return query
                 .Select(c => new CompanyDTO
                 {
@@ -64,6 +70,16 @@ namespace Evento_Back_end.Controllers
                     Description = s.Description,
                     Price = s.Price
                 })
+                .ToList();
+        }
+
+        [HttpGet("service-types")]
+        public IEnumerable<string> GetServiceTypes()
+        {
+            return _context.Services
+                .Select(s => s.Type)
+                .Distinct()
+                .OrderBy(t => t)
                 .ToList();
         }
 
