@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using System;
 using Evento_Back_end.DomainModels;
 using Evento_Back_end.Contracts;
@@ -15,6 +16,9 @@ using Evento_Back_end.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.OpenApi.Models;
 
 namespace Evento_Back_end
 {
@@ -33,6 +37,7 @@ namespace Evento_Back_end
 
             builder.Services.AddControllers();
 
+            
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -48,9 +53,41 @@ namespace Evento_Back_end
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)),
 
-                        RoleClaimType = "role"
+                        RoleClaimType = "role",
+                        NameClaimType = JwtRegisteredClaimNames.Sub
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            Console.WriteLine("JWT FAILED:");
+                            Console.WriteLine(context.Exception.Message);
+                            return Task.CompletedTask;
+                        }
                     };
                 });
+
+            /*
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+            */
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
+
+            /*
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("HighLevelAccess", policy =>
+                    policy.RequireRole("Manager", "Admin"));
+            });
+            */
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -61,7 +98,35 @@ namespace Evento_Back_end
 
             builder.Services.AddEndpointsApiExplorer();
 
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter: Bearer {your JWT token}"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
 
             builder.Services.AddCors(options =>
             {
@@ -94,7 +159,8 @@ namespace Evento_Back_end
                     Rolenames.Admin,
                     Rolenames.Customer,
                     Rolenames.Manager,
-                    Rolenames.Member
+                    Rolenames.Member,
+                    Rolenames.Developer
                 })
                 {
                     if (!await roleManager.RoleExistsAsync(role))
@@ -118,6 +184,19 @@ namespace Evento_Back_end
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.Use(async (context, next) =>
+            {
+                Console.WriteLine(
+                    $"AUTH HEADER: {context.Request.Headers.Authorization}");
+
+                await next();
+            });
+
+            app.Use(async (context, next) =>
+            {
+                Console.WriteLine($"PATH: {context.Request.Path}");
+                await next();
+            });
 
             app.MapControllers();
 

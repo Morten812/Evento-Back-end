@@ -8,5 +8,6 @@ namespace Evento_Back_end.Data
         public const string Customer = "Customer";
         public const string Manager = "Manager";
         public const string Member = "Member";
+        public const string Developer = "Developer";
     }
 }

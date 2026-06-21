@@ -47,33 +47,33 @@ namespace Evento_Back_end.Identity
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             // Define the customer user details
-            var customerEmail = "customer@gmail.com";
-            var customerPassword = "Customer@123";
+            var managerEmail = "GLSManager@gmail.com";
+            var managerPassword = "GLSManager@123";
 
             // Check if the customer user already exists
-            var userExist = await userManager.FindByEmailAsync(customerEmail);
+            var userExist = await userManager.FindByEmailAsync(managerEmail);
             if (userExist == null)
             {
-                var customerUser = new ApplicationUser
+                var managerUser = new ApplicationUser
                 {
-                    UserName = customerEmail,
-                    Email = customerEmail,
-                    FullName = "Customer",
-                    PhoneNumber = "22446688",
+                    UserName = managerEmail,
+                    Email = managerEmail,
+                    FullName = "GLSManager",
+                    PhoneNumber = "44881212",
                     EmailConfirmed = true,
                     EnableNotifications = true
                 };
 
                 // Create the customer user
-                var result = await userManager.CreateAsync(customerUser, customerPassword);
+                var result = await userManager.CreateAsync(managerUser, managerPassword);
                 if (result.Succeeded)
                 {
                     // Assign the customer role to the user
-                    await userManager.AddToRoleAsync(customerUser, Rolenames.Customer);
+                    await userManager.AddToRoleAsync(managerUser, Rolenames.Manager);
                 }
                 else
                 {
-                    throw new Exception("Failed to create the customer user: " + string.Join(", ", result.Errors));
+                    throw new Exception("Failed to create the manager user: " + string.Join(", ", result.Errors));
                 }
             }
         }

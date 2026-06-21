@@ -34,5 +34,6 @@ namespace Evento_Back_end.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Member> Members { get; set; }
     }
 }

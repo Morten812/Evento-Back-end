@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Evento_Back_end.Contracts;
+using Evento_Back_end.Data;
 using Evento_Back_end.DomainModels;
 using Evento_Back_end.DTOs;
-using Evento_Back_end.Data;
-using Evento_Back_end.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Evento_Back_end.Controllers
 {
@@ -38,7 +42,76 @@ namespace Evento_Back_end.Controllers
             return Ok(requests);
         }
 
-        [HttpGet("service{serviceId}")]
+        private string? GetCurrentUserId()
+        {
+            return User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        }
+
+        [HttpGet("hello")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<List<RequestDTO>>> GetRequestsPerLoggedInUser()
+        {
+            Console.WriteLine("ACTION HIT");
+
+            Console.WriteLine($"Authenticated: {User.Identity?.IsAuthenticated}");
+
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"{claim.Type} = {claim.Value}");
+            }
+
+            var userId = GetCurrentUserId();
+
+            if (userId == null)
+                return Unauthorized();
+
+            Console.WriteLine($"UserID from token: {userId}");
+
+            var member = await _context.Members
+                .SingleOrDefaultAsync(m => m.UserID == userId);
+
+            Console.WriteLine($"Member found: {member != null}");
+
+            if (member != null)
+            {
+                Console.WriteLine($"Role: {member.Role}");
+                Console.WriteLine($"Company: {member.CompanyID}");
+            }
+
+            if (member.Role != "Manager")
+                return Forbid();
+            
+            var companyId = member.CompanyID;
+
+            var requests = await _context.Requests
+                .Where(r =>
+                    r.CompanyID == companyId &&
+                    r.Status == RequestStatus.Pending)
+                .Select(r => new RequestDTO
+                {
+                    RequestID = r.RequestID,
+                    ServiceID = r.ServiceID,
+                    Description = r.Description,
+                    Status = r.Status,
+                    ServiceName = r.Service.Name,
+                    CustomerName =
+                        r.Customer.FirstName + " " +
+                        r.Customer.LastName,
+
+                    CreatedAt = r.CreatedAt
+                })
+                .ToListAsync();
+
+            Console.WriteLine(User.Identity?.IsAuthenticated);
+            Console.WriteLine(User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value);
+            Console.WriteLine($"UserID: {userId}");
+            Console.WriteLine($"CompanyID: {companyId}");
+            Console.WriteLine($"Requests found: {requests.Count}");
+
+            return Ok(requests);
+        }
+
+        [HttpGet("service/{serviceId}")]
         public async Task<ActionResult<List<RequestDTO>>> GetRequestsByService(int serviceId)
         {
             var requests = await _context.Requests

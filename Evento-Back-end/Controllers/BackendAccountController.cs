@@ -41,21 +41,40 @@ namespace Evento_Back_end.Controllers
 
             var roles = await userManager.GetRolesAsync(user);
 
+            Console.WriteLine("ROLES:");
+
+            foreach (var role in roles)
+            {
+                Console.WriteLine(role);
+            }
+
+            List<Claim> claims =
+            [
+               new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+               new Claim(ClaimTypes.Name, user.FullName!),
+               new Claim(ClaimTypes.Role, "Manager")
+            ];
+
+            /*
+            List<Claim> claims =
+         [
+             new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                ..roles.Select(r => new Claim(ClaimTypes.Role, r))
+         ];
+            */
+
             // Generate JWT here
             // Console.WriteLine(_configuration["Jwt:SecretKey"]);
             // Console.WriteLine(_configuration["Jwt:SecretKey"]?.Length);
+
+
             var signingKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
 
             var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-            List<Claim> claims =
-            [
-                new(JwtRegisteredClaimNames.Sub, user.Id),
-                new(JwtRegisteredClaimNames.Email, user.Email!),
-                ..roles.Select(r => new Claim("role", r))
-            ];
-
+            /*
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -64,12 +83,21 @@ namespace Evento_Back_end.Controllers
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"]
             };
+            */
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var jwt = tokenHandler.WriteToken(token);
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials);
 
-            return Ok(new {token = jwt}); // JWT probably isn't finished yet
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            // var token = tokenHandler.CreateToken(tokenDescriptor);
+            // var jwt = tokenHandler.WriteToken(token);
+
+            return Ok(new {access_token = jwt, expires_in = 3600}); // JWT probably isn't finished yet
+            
         }
 
         [HttpGet("logout")]
